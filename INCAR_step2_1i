@@ -1,0 +1,47 @@
+# General Setup
+ENCUT           = 400            # kinetic energy cutoff in eV for plane-wave basis set
+
+# Magnetism
+ISPIN           = 2              # spin polarized: df:1=No; 2=Yes
+
+
+# Excess Charge
+NUPDOWN         = 1              # Sets the difference between the number of electrons in the up and down spin components
+
+
+# Electronic Relaxation (SCF)
+PREC            = Accurate       # Precision set for parameters ENCUT, NGX,Y,Z, NGXF,YF,ZF and ROPT; Accurate=used for phonon calculations and second derivatives
+#NELMIN         = 6              # Sets the minimum number of electronic SC steps
+NELM            = 60             # Sets the maximum number of electronic SC steps
+EDIFF           = 1.0E-05        # Convergence criteria for ESC
+SIGMA           = 0.05           # width of smearing in eV: should be very small for Insulators/semiconductors=0.1 metals=0.05
+ISMEAR          = 0              # Smearing method: 0=Gaussian; -5=Tetrahedron
+
+# Ionic Relaxation
+EDIFFG          = -1.0E-02       # Convergence criteria for ionic self consistency (SC) steps / relaxation
+NSW             = 300             # Max Number of Ionic SC steps: 0 for Single Point
+IBRION          = 2              # 2=Conjugated Gradient; 1=Newton like; (df if NSW=-1 or 0):-1=Single Point
+ISIF            = 0              # (df if IBRION=0)0=do not calculate stress tensor and relax ions; (df if IBRION!=0)2=calculate stress tensor and relax ions; 3=relax cell+ion; 4=relax cell+ions under constant volume
+POTIM           = 0.1            # Sets the step size in ionic relaxation
+ISYM           = 2              # -1=switch-off symmetry; 0=doesn't use symmetry; 1=symmetry with USPPs; 2=symmetry on (efficient)
+SYMPREC = 1E-04
+
+# DFT+U
+
+# Write Flags
+LORBIT          = 10             # 11: prints number of electrons, magnetization at the end of SCF cycle
+LAECHG          = .TRUE.         # core charge is written to AECCAR0 and valence charge to AECCAR2
+LCHARG          = .TRUE.         # Determine whether charge densities (CHGCAR and CHG) are written
+LWAVE           = .TRUE.         # Determine whether WAVECAR is written
+
+# Accelerate Calculations
+#ALGO           = Fast           # Electronic minimization algorithm
+IALGO           = 38             # df:38=Blocked-Davidson algorithm (ALGO=Normal); 48=RMM-DIIS (ALGO=Fast)
+LREAL           = Auto           # Real space projection
+NSIM            = 4              # Sets the number of bands optimized simulataneously by the RMM-DIIS algorithm
+
+# Parallelization
+NCORE           = 8              # Number of compute cores working on an individual orbital
+LPLANE          = .TRUE.         # Switches on plane-wise data distribution in real space
+LSCALU          = .FALSE.        # Switches on parallel LU decomposition (using scaLAPACK) in the orthonormalization of the wave functions
+

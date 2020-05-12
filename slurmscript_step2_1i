@@ -1,0 +1,51 @@
+#!/bin/sh
+#SBATCH --time=72:00:00
+#SBATCH --nodes=2
+#SBATCH --tasks-per-node=32
+#SBATCH --account=mdupuis2
+#SBATCH --mem=187000
+#SBATCH --output=job.out
+#SBATCH --job-name=
+#SBATCH --mail-user=pavankum@buffalo.edu
+#SBATCH --mail-type=END
+#SBATCH --partition=skylake
+#SBATCH --clusters=ub-hpc
+#SBATCH --error=job.err
+#SBATCH --qos=skylake
+#SBATCH --requeue
+
+export SCRATCH_DIR=$SLURM_SUBMIT_DIR
+export OMP_NUM_THREADS=1
+export I_MPI_PIN=0
+ulimit -s unlimited
+export NNODES=`srun -l hostname | uniq | wc -l`
+export NPROCS=`srun -l hostname | wc -l`
+
+HOSTFILE=hosts.$SLURM_JOB_ID
+srun hostname -s | sort > $HOSTFILE
+
+cd $SLURM_SUBMIT_DIR
+
+module use /projects/academic/mdupuis2/software/modules/vasp5.4.4
+module load vasp5.4.4
+module list
+which vasp
+
+echo "The number of nodes is $SLURM_NNODES"
+echo "The number of processors per node $SLURM_NTASKS_PER_NODE"
+echo "The number of processors is $NPROCS"
+
+export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+
+cp POSCAR POSCAR_$SLURM_JOB_ID
+
+srun --propagate=STACK vasp
+
+/projects/academic/mdupuis2/pavan/bin/vtstscripts/vtstscripts-930/chgsum.pl AECCAR0 AECCAR2
+/projects/academic/mdupuis2/pavan/bin/vtstscripts/vtstscripts-930/chgsplit.pl CHGCAR
+/projects/academic/mdupuis2/pavan/bader/bader CHGCAR_mag -ref CHGCAR_sum
+mv ACF.dat ACF_spin.dat
+/projects/academic/mdupuis2/pavan/bader/bader CHGCAR -ref CHGCAR_sum
+mv ACF.dat ACF_chg.dat
+
+rm AECC* CHG*
